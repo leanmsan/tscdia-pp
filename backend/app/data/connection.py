@@ -1,4 +1,6 @@
-from sqlalchemy import create_engine, URL, text
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.engine.url import URL
+from sqlalchemy import text
 from app.core.config import settings
 
 username = settings.DB_USERNAME
@@ -8,7 +10,7 @@ port = settings.DB_PORT
 database = settings.DB_NAME
 
 url = URL.create(
-    drivername='mysql+pymysql',
+    drivername='mysql+aiomysql',
     username=username,
     password=password,
     host=host,
@@ -16,8 +18,4 @@ url = URL.create(
     database=database
 )
 
-engine = create_engine(url)
-
-with engine.connect() as conn:
-    result = conn.execute(text("SELECT 1"))
-    print(result.all())
+engine = create_async_engine(url)

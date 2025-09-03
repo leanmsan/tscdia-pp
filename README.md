@@ -14,19 +14,11 @@ project-root/
 │   │   ├── core/
 │   │   │   ├── config.py      # Configuración (puertos, DB, Spark)
 │   │   ├── services/
-│   │   │   ├── spark_jobs.py  # Funciones que ejecutan tareas PySpark
+│   │   ├── data/
+│   │   │   ├── connection.py  # Conexión a la Base de Datos          
 │   │   └── __init__.py
 │   ├── requirements.txt
 │   └── Dockerfile
-│
-├── data/           # Lógica de PySpark
-│   ├── jobs/
-│   │   ├── process_dataset.py # Procesos ETL
-│   │   ├── clustering.py      # Modelos ML o clustering
-│   │   └── utils.py
-│   ├── config/
-│   │   ├── spark_session.py   # Inicialización de SparkSession
-│   └── __init__.py
 │
 ├── frontend/                  # Streamlit
 │   ├── app.py                 # Entrada Streamlit
