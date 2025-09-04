@@ -3,9 +3,7 @@ from sqlalchemy import text
 
 selected_columns = [
     'id',
-    'codigo',
     'edad',
-    'id_persona',
     'establecimiento_notificador',
     'centro_derivador',
     'localidad',
@@ -21,16 +19,11 @@ selected_columns = [
     'igg_test_rapido',
     'rt_pcr_tiempo_real_dengue',
     'serotipo_virus_dengue',
-    'rt_pcr_chik',
-    'igm_chik',
-    'rt_pcr_tiempo_real_chik',
-    'rt_pcr_tiempo_real_zika',
-    'rt_pcr_tiempo_real_yf',
     'created_at'
 ]
 
 async def get_laboratorio_dengue_data():
     async with engine.connect() as connection:
-        result = await connection.execute(text(f'SELECT {", ".join(selected_columns)} FROM laboratorio_dengue'))
+        result = await connection.execute(text(f'SELECT {", ".join(selected_columns)} FROM laboratorio_dengue WHERE edad IS NOT NULL'))
         rows = result.fetchall()
         return rows
