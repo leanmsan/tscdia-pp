@@ -1,7 +1,6 @@
 import fastapi
 from app.data.connection import engine
-from app.data.repositories.laboratorio_dengue_repository import get_laboratorio_dengue_data
-import asyncio
+from app.api.routes import router as api_router
 
 app = fastapi.FastAPI()
 
@@ -12,8 +11,4 @@ app.add_event_handler('shutdown', engine.dispose)
 def read_root():
     return {'Hello': 'World'}
 
-@app.get('/laboratorio-dengue')
-async def laboratorio_dengue():
-    rows = await get_laboratorio_dengue_data()
-    # Convert SQLAlchemy Row objects to dicts
-    return [dict(row._mapping) for row in rows]
+app.include_router(api_router)
