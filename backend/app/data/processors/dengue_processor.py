@@ -159,22 +159,42 @@ class DengueDataProcessor:
                     pl.lit(None).cast(pl.Int32).alias('sem_epid_recepcion')
                 ])
         
-        numeric_cols = ['edad', 'dias_evolucion']
-        for col in numeric_cols:
-            if col in df.columns:
-                try:
-                    df_with_derived = df_with_derived.with_columns(
-                        pl.col(col).cast(pl.Utf8, strict=False)
-                        .str.replace_all(r'[^\d]', '')
-                        .cast(pl.Int32, strict=False)
-                        .fill_null(0)
-                        .alias(col)
-                    )
-                    logger.info(f'Columna numérica {col} normalizada exitosamente')
-                except Exception as e:
-                    logger.warning(f'Error normalizando columna numérica {col}: {e}')
-                    df_with_derived = df_with_derived.with_columns(
-                        pl.lit(0).cast(pl.Int32).alias(col)
-                    )
+        # Procesamiento específico para edad con validaciones
+        if 'edad' in df.columns:
+            try:
+                df_with_derived = df_with_derived.with_columns(
+                    pl.col('edad')
+                    .cast(pl.Utf8, strict=False)
+                    .str.replace_all(r'[^\d]', '')  # Eliminar caracteres no numéricos
+                    .cast(pl.Int32, strict=False)
+                    .fill_null(0)
+                    .clip(0, 120)  # Limitar edad entre 0 y 120 años
+                    .alias('edad')
+                )
+                logger.info('Columna edad normalizada exitosamente con validaciones de rango')
+            except Exception as e:
+                logger.warning(f'Error normalizando columna edad: {e}')
+                df_with_derived = df_with_derived.with_columns(
+                    pl.lit(0).cast(pl.Int32).alias('edad')
+                )
+        
+        # Procesamiento específico para días de evolución con validaciones
+        if 'dias_evolucion' in df.columns:
+            try:
+                df_with_derived = df_with_derived.with_columns(
+                    pl.col('dias_evolucion')
+                    .cast(pl.Utf8, strict=False)
+                    .str.replace_all(r'[^\d]', '')  # Eliminar caracteres no numéricos
+                    .cast(pl.Int32, strict=False)
+                    .fill_null(0)
+                    .clip(0, 365)  # Limitar días de evolución entre 0 y 365 días
+                    .alias('dias_evolucion')
+                )
+                logger.info('Columna dias_evolucion normalizada exitosamente con validaciones de rango')
+            except Exception as e:
+                logger.warning(f'Error normalizando columna dias_evolucion: {e}')
+                df_with_derived = df_with_derived.with_columns(
+                    pl.lit(0).cast(pl.Int32).alias('dias_evolucion')
+                )
         
         return df_with_derived
