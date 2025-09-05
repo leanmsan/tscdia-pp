@@ -1,17 +1,5 @@
 """
-Página de Análisi    try:
-     .        st.info(f"Analizando {len(df):,} registros totales")
-        
-        show_laboratory_analysis(df)nalizando {len(df):,} registros totales")
-        
-        show_laboratory_analysis(df) fetch_dengue_data()
-        if df is None or len(df) == 0:
-            st.error("No se pudieron obtener datos del backend")
-            return
-        
-        st.info(f" Analizando {len(df):,} registros totales")
-        
-        show_laboratory_analysis(df)io - Solo gráficos del análisis original
+Página de Análisis de Laboratorio - Solo gráficos del análisis original
 """
 import streamlit as st
 import pandas as pd
@@ -52,26 +40,29 @@ def show_laboratory_page(df: pd.DataFrame):
         st.warning(" No hay datos disponibles con los filtros seleccionados")
         return
     
-    # GRÁFICO 1: Distribución de serotipos (EXACTO del análisis original)
-    if 'serotipo_virus_dengue' in df.columns:
+    # GRÁFICO 1: Distribución de serotipos (usando datos normalizados del backend)
+    if 'serotipo_virus_dengue_normalizado' in df.columns:
         st.subheader("🧬 Distribución de Serotipos")
         
-        # Normalizar serotipos como en el análisis original
-        serotipos_norm = []
-        for val in df['serotipo_virus_dengue'].fillna('no realizado'):
+        # Usar la columna ya normalizada del backend
+        serotipos_normalized = df['serotipo_virus_dengue_normalizado'].fillna('no realizado')
+        
+        # Mapear los valores normalizados a formato de visualización
+        serotipos_display = []
+        for val in serotipos_normalized:
             val_str = str(val).lower().strip()
             if 'den-1' in val_str:
-                serotipos_norm.append('DEN-1')
+                serotipos_display.append('DEN-1')
             elif 'den-2' in val_str:
-                serotipos_norm.append('DEN-2')
+                serotipos_display.append('DEN-2')
             elif 'den-3' in val_str:
-                serotipos_norm.append('DEN-3')
+                serotipos_display.append('DEN-3')
             elif 'den-4' in val_str:
-                serotipos_norm.append('DEN-4')
+                serotipos_display.append('DEN-4')
             else:
-                serotipos_norm.append('no realizado')
+                serotipos_display.append('no realizado')
         
-        serotipos_counts = pd.Series(serotipos_norm).value_counts()
+        serotipos_counts = pd.Series(serotipos_display).value_counts()
         
         # Filtrar solo los serotipos identificados (excluir 'no realizado')
         serotipos_identificados = serotipos_counts[serotipos_counts.index != 'no realizado']
@@ -136,28 +127,29 @@ def show_laboratory_page(df: pd.DataFrame):
                 **Total de casos con serotipo identificado: {total_serotipos:,}**
                 """)
     
-    # GRÁFICO 2: Efectividad en la Detección de Dengue (EXACTO del análisis original)
-    if 'rt_pcr_tiempo_real_dengue' in df.columns:
+    # GRÁFICO 2: Efectividad en la Detección de Dengue (usando datos normalizados del backend)
+    if 'rt_pcr_tiempo_real_dengue_normalizado' in df.columns:
         st.subheader("📈 Efectividad en la Detección de Dengue")
         
-        # Normalizar valores PCR como en el análisis original
-        pcr_values = df['rt_pcr_tiempo_real_dengue'].fillna('No realizado')
-        pcr_normalized = []
+        # Usar la columna ya normalizada del backend
+        pcr_normalized = df['rt_pcr_tiempo_real_dengue_normalizado'].fillna('no realizado')
         
-        for val in pcr_values:
+        # Mapear los valores normalizados a formato de visualización
+        pcr_display = []
+        for val in pcr_normalized:
             val_str = str(val).lower().strip()
-            if 'positivo' in val_str:
-                pcr_normalized.append('Positivo')
-            elif 'negativo' in val_str or 'no detectable' in val_str:
-                pcr_normalized.append('Negativo')
-            elif 'proceso' in val_str:
-                pcr_normalized.append('En proceso')
+            if val_str == 'positivo':
+                pcr_display.append('Positivo')
+            elif val_str == 'negativo':
+                pcr_display.append('Negativo')
+            elif val_str == 'en proceso':
+                pcr_display.append('En proceso')
             elif 'den-1' in val_str:
-                pcr_normalized.append('DEN-1')
+                pcr_display.append('DEN-1')
             else:
-                pcr_normalized.append('No realizado')
+                pcr_display.append('No realizado')
         
-        pcr_counts = pd.Series(pcr_normalized).value_counts()
+        pcr_counts = pd.Series(pcr_display).value_counts()
         
         # Separar testeados vs no realizados como en el análisis original
         total_testeados = pcr_counts.get('Positivo', 0) + pcr_counts.get('Negativo', 0) + pcr_counts.get('En proceso', 0) + pcr_counts.get('DEN-1', 0)
