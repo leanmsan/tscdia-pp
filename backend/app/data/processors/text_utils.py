@@ -17,9 +17,12 @@ def limpiar_basico(texto: str) -> str:
     
     s = str(texto).strip()
     
+    # Arreglos típicos de mala codificación
     s = s.replace('?A', 'Á').replace('?E', 'É').replace('?I', 'Í').replace('?O', 'Ó').replace('?U', 'Ú')
     s = s.replace('A?', 'Á').replace('E?', 'É').replace('I?', 'Í').replace('O?', 'Ó').replace('U?', 'Ú')
     s = s.replace('NU?EZ', 'NUÑEZ').replace('A?ATUYA', 'AÑATUYA').replace('CA?ADA', 'CAÑADA')
+    # Muy común: Ñ rota como "?" o "§"
+    s = s.replace('N?', 'Ñ').replace('N§', 'Ñ')
     
     s = re.sub(r'\s+', ' ', s)
     s = s.upper()

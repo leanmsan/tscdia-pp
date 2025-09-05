@@ -7,6 +7,7 @@ from datetime import datetime
 from .localidad_processor import normalizar_localidad
 from .departamento_processor import normalizar_departamento
 from .laboratorio_processor import normalizar_laboratorio
+from .establecimiento_processor import normalizar_establecimiento_notificador
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,6 +20,9 @@ def procesar_chunk_departamentos(chunk_data: List[str]) -> List[str]:
 
 def procesar_chunk_laboratorio(chunk_data: List[str]) -> List[str]:
     return [normalizar_laboratorio(lab) for lab in chunk_data]
+
+def procesar_chunk_establecimiento(chunk_data: List[str]) -> List[str]:
+    return [normalizar_establecimiento_notificador(est) for est in chunk_data]
 
 def dividir_en_chunks(data: List[Any], chunk_size: int = 1000) -> List[List[Any]]:
     return [data[i:i + chunk_size] for i in range(0, len(data), chunk_size)]
@@ -52,6 +56,16 @@ class DengueDataProcessor:
             )
             df_processed = df_processed.with_columns(
                 pl.Series('departamento_normalizado', departamentos_normalizados)
+            )
+        
+        if 'establecimiento_notificador' in df.columns:
+            logger.info('Procesando establecimientos notificadores...')
+            establecimientos_normalizados = self._procesar_columna_paralelo(
+                df['establecimiento_notificador'].to_list(),
+                procesar_chunk_establecimiento
+            )
+            df_processed = df_processed.with_columns(
+                pl.Series('establecimiento_notificador_normalizada', establecimientos_normalizados)
             )
         
         columnas_laboratorio = [
