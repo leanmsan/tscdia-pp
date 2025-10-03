@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: dengue-backend
+    ports:
+      - "8000:8000"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - dengue-net
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: dengue-frontend
+    ports:
+      - "8501:8501"
+    restart: always
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      BACKEND_URL: http://backend:8000
+    networks:
+      - dengue-net
+
+networks:
+  dengue-net:
+    driver: bridge

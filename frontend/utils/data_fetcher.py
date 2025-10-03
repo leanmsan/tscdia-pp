@@ -2,13 +2,16 @@ import streamlit as st
 import requests
 import pandas as pd
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
 @st.cache_data(ttl=300)
 def fetch_data():
     try:
-        backend_url = "http://localhost:8000"
+        # Usar variable de entorno o localhost por defecto
+        backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+        
         response = requests.get(f"{backend_url}/laboratorio-dengue/procesados", timeout=30)
         response.raise_for_status()
         
@@ -20,7 +23,14 @@ def fetch_data():
         logger.info(f"Datos obtenidos exitosamente: {len(data)} registros")
         return data
     except requests.exceptions.RequestException as e:
-        st.error(f"Error conectando al backend: {e}")
+        st.error(f"❌ Error: No se pudieron obtener datos del backend")
+        
+        # Información adicional para debug
+        with st.expander("🔧 Soluciones posibles"):
+            st.write("• Verificar que el backend esté ejecutándose en http://localhost:8000")
+            st.write("• Comprobar la conexión a la base de datos")
+            st.write("• Revisar los logs del backend para errores")
+            
         return None
 
 @st.cache_data(ttl=300)
